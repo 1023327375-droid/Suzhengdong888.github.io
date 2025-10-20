@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公司年会抽奖系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .qr-section {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+        
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .participants-count {
+            font-size: 1.5rem;
+            margin: 15px 0;
+            color: #ffcc00;
+        }
+        
+        .lottery-control {
+            flex: 2;
+            min-width: 500px;
+        }
+        
+        .prize-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .current-prize {
+            font-size: 2rem;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        
+        .winner-display {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+        }
+        
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn-start {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-stop {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-reset {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .prize-levels {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .prize-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 15px;
+            width: 180px;
+            text-align: center;
+        }
+        
+        .prize-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #ffcc00;
+        }
+        
+        .winner-list {
+            min-height: 150px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .winner-item {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .instructions {
+            margin-top: 40px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .instructions h2 {
+            margin-bottom: 15px;
+            color: #ffcc00;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .lottery-control, .qr-section {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>公司年会幸运抽奖</h1>
+            <div class="subtitle">扫描二维码参与抽奖，赢取丰厚奖品！</div>
+        </header>
+        
+        <div class="main-content">
+            <div class="panel qr-section">
+                <h2>参与抽奖</h2>
+                <p>使用微信扫描下方二维码参与抽奖</p>
+                <div class="qr-code">
+                    <!-- 这里可以放置真实的二维码图片 -->
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f5f5f5; color: #333; font-size: 14px; border-radius: 5px;">
+                        微信扫码参与抽奖<br>(二维码图片位置)
+                    </div>
+                </div>
+                <div class="participants-count">已参与人数: <span id="participantCount">0</span></div>
+                <p>扫码后填写姓名即可参与抽奖</p>
+            </div>
+            
+            <div class="panel lottery-control">
+                <div class="prize-display">
+                    <div class="current-prize">当前奖项: <span id="currentPrize">三等奖</span></div>
+                    <div class="winner-display" id="winnerDisplay">等待抽奖...</div>
+                </div>
+                
+                <div class="control-buttons">
+                    <button class="btn btn-start" id="startBtn">开始抽奖</button>
+                    <button class="btn btn-stop" id="stopBtn" disabled>停止</button>
+                    <button class="btn btn-reset" id="resetBtn">重置</button>
+                </div>
+                
+                <div class="prize-selector">
+                    <h3>选择奖项</h3>
+                    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px;">
+                        <button class="prize-option" data-prize="特等奖">特等奖</button>
+                        <button class="prize-option" data-prize="一等奖">一等奖</button>
+                        <button class="prize-option" data-prize="二等奖">二等奖</button>
+                        <button class="prize-option" data-prize="三等奖">三等奖</button>
+                    </div>
+                </div>
+                
+                <div class="prize-levels">
+                    <div class="prize-card">
+                        <div class="prize-title">特等奖</div>
+                        <div class="winner-list" id="specialPrizeList">
+                            <!-- 中奖名单将动态显示在这里 -->
+                        </div>
+                    </div>
+                    <div class="prize-card">
+                        <div class="prize-title">一等奖</div>
+                        <div class="winner-list" id="firstPrizeList">
+                            <!-- 中奖名单将动态显示在这里 -->
+                        </div>
+                    </div>
+                    <div class="prize-card">
+                        <div class="prize-title">二等奖</div>
+                        <div class="winner-list" id="secondPrizeList">
+                            <!-- 中奖名单将动态显示在这里 -->
+                        </div>
+                    </div>
+                    <div class="prize-card">
+                        <div class="prize-title">三等奖</div>
+                        <div class="winner-list" id="thirdPrizeList">
+                            <!-- 中奖名单将动态显示在这里 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h2>使用说明</h2>
+            <ol>
+                <li><strong>准备工作：</strong>将本页面部署到服务器，确保可以通过微信访问</li>
+                <li><strong>生成二维码：</strong>使用本页面的URL生成二维码，供参与者扫描</li>
+                <li><strong>参与抽奖：</strong>参与者使用微信扫描二维码，填写姓名即可参与抽奖</li>
+                <li><strong>抽奖控制：</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>选择要抽取的奖项级别（特等奖、一等奖、二等奖、三等奖）</li>
+                        <li>点击"开始抽奖"按钮，名单开始滚动</li>
+                        <li>点击"停止"按钮，确定中奖者</li>
+                        <li>点击"重置"按钮可以清空中奖名单，重新开始抽奖</li>
+                    </ul>
+                </li>
+                <li><strong>注意事项：</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>同一人不会重复中奖</li>
+                        <li>抽奖过程中可以随时切换奖项级别</li>
+                        <li>建议使用大屏幕展示抽奖过程，增加现场氛围</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+        
+        <footer>
+            <p>公司年会抽奖系统 &copy; 2023 技术支持</p>
+        </footer>
+    </div>
+
+    <script>
+        // 模拟参与者数据（实际应用中应从后端获取）
+        let participants = [
+            "张三", "李四", "王五", "赵六", "钱七", "孙八", "周九", "吴十",
+            "郑十一", "王十二", "李十三", "张十四", "刘十五", "陈十六", "杨十七", "黄十八",
+            "赵十九", "周二十", "吴二十一", "郑二十二", "王二十三", "李二十四", "张二十五"
+        ];
+        
+        // 已中奖人员
+        let winners = {
+            "特等奖": [],
+            "一等奖": [],
+            "二等奖": [],
+            "三等奖": []
+        };
+        
+        // 当前奖项
+        let currentPrize = "三等奖";
+        
+        // DOM元素
+        const participantCountEl = document.getElementById('participantCount');
+        const currentPrizeEl = document.getElementById('currentPrize');
+        const winnerDisplayEl = document.getElementById('winnerDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const prizeOptions = document.querySelectorAll('.prize-option');
+        
+        // 中奖名单元素
+        const specialPrizeListEl = document.getElementById('specialPrizeList');
+        const firstPrizeListEl = document.getElementById('firstPrizeList');
+        const secondPrizeListEl = document.getElementById('secondPrizeList');
+        const thirdPrizeListEl = document.getElementById('thirdPrizeList');
+        
+        // 抽奖状态
+        let isRolling = false;
+        let rollInterval;
+        
+        // 初始化
+        function init() {
+            participantCountEl.textContent = participants.length;
+            currentPrizeEl.textContent = currentPrize;
+            updateWinnerLists();
+            
+            // 绑定事件
+            startBtn.addEventListener('click', startRolling);
+            stopBtn.addEventListener('click', stopRolling);
+            resetBtn.addEventListener('click', resetLottery);
+            
+            prizeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    currentPrize = this.getAttribute('data-prize');
+                    currentPrizeEl.textContent = currentPrize;
+                    
+                    // 高亮当前选中的奖项
+                    prizeOptions.forEach(opt => opt.style.background = '');
+                    this.style.background = '#ffcc00';
+                    this.style.color = '#333';
+                });
+            });
+            
+            // 默认选中三等奖
+            document.querySelector('.prize-option[data-prize="三等奖"]').style.background = '#ffcc00';
+            document.querySelector('.prize-option[data-prize="三等奖"]').style.color = '#333';
+        }
+        
+        // 开始滚动
+        function startRolling() {
+            if (isRolling) return;
+            
+            isRolling = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            
+            // 过滤掉已中奖的人员
+            const availableParticipants = participants.filter(participant => {
+                return !Object.values(winners).flat().includes(participant);
+            });
+            
+            if (availableParticipants.length === 0) {
+                winnerDisplayEl.textContent = "无可用参与者";
+                stopRolling();
+                return;
+            }
+            
+            rollInterval = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * availableParticipants.length);
+                winnerDisplayEl.textContent = availableParticipants[randomIndex];
+            }, 50);
+        }
+        
+        // 停止滚动
+        function stopRolling() {
+            if (!isRolling) return;
+            
+            clearInterval(rollInterval);
+            isRolling = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            // 确定中奖者
+            const winner = winnerDisplayEl.textContent;
+            if (winner && winner !== "等待抽奖..." && winner !== "无可用参与者") {
+                winners[currentPrize].push(winner);
+                updateWinnerLists();
+                
+                // 显示中奖动画效果
+                winnerDisplayEl.style.color = "#ffcc00";
+                winnerDisplayEl.style.textShadow = "0 0 20px #ffcc00";
+                winnerDisplayEl.style.transform = "scale(1.1)";
+                setTimeout(() => {
+                    winnerDisplayEl.style.color = "";
+                    winnerDisplayEl.style.textShadow = "";
+                    winnerDisplayEl.style.transform = "scale(1)";
+                }, 2000);
+            }
+        }
+        
+        // 重置抽奖
+        function resetLottery() {
+            if (confirm("确定要重置所有中奖名单吗？此操作不可恢复！")) {
+                if (isRolling) {
+                    clearInterval(rollInterval);
+                    isRolling = false;
+                }
+                
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                winnerDisplayEl.textContent = "等待抽奖...";
+                
+                // 清空中奖名单
+                for (let prize in winners) {
+                    winners[prize] = [];
+                }
+                
+                updateWinnerLists();
+            }
+        }
+        
+        // 更新中奖名单显示
+        function updateWinnerLists() {
+            specialPrizeListEl.innerHTML = winners["特等奖"].map(winner => 
+                `<div class="winner-item">${winner}</div>`
+            ).join('');
+            
+            firstPrizeListEl.innerHTML = winners["一等奖"].map(winner => 
+                `<div class="winner-item">${winner}</div>`
+            ).join('');
+            
+            secondPrizeListEl.innerHTML = winners["二等奖"].map(winner => 
+                `<div class="winner-item">${winner}</div>`
+            ).join('');
+            
+            thirdPrizeListEl.innerHTML = winners["三等奖"].map(winner => 
+                `<div class="winner-item">${winner}</div>`
+            ).join('');
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
